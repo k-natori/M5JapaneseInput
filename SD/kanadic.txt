@@ -37,12 +37,6 @@ sho:しょ
 sya:しゃ
 syu:しゅ
 syo:しょ
-ja:じゃ
-ju:じゅ
-jo:じょ
-jya:じゃ
-jyu:じゅ
-jyo:じょ
 ta:た
 ti:ち
 chi:ち
@@ -61,9 +55,6 @@ tyo:ちょ
 cha:ちゃ
 chu:ちゅ
 cho:ちょ
-dya:ぢゃ
-dyu:ぢゅ
-dyo:ぢょ
 na:な
 ni:に
 nu:ぬ
@@ -97,6 +88,11 @@ byo:びょ
 pya:ぴゃ
 pyu:ぴゅ
 pyo:ぴょ
+fa:ふぁ
+fi:ふぃ
+fu:ふ
+fe:ふぇ
+fo:ふぉ
 ma:ま
 mi:み
 mu:む
@@ -130,12 +126,4 @@ xya:ゃ
 xyu:ゅ
 xyo:ょ
 tt:っ
-ss:っ
-kk:っ
-pp:っ
-va:ゔぁ
-vi:ゔぃ
-vu:ゔ
-ve:ゔぇ
-vo:ゔぉ
 -:ー

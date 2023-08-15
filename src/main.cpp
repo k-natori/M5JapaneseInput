@@ -10,6 +10,7 @@
 #define CARDKB_ADDR 0x5F
 #define defaultKanaDicFileName "/kanadic.txt"
 #define defaultSKKDicFileName "/SKK-JISYO.M"
+#define baseFileName "/note"
 
 static LGFX lcd;
 static LGFX_Sprite screenSprite(&lcd);
@@ -40,7 +41,12 @@ void pushEnter();
 void pushSpace();
 void pushChar(char c);
 void pushBackSpace();
+
 void resetKanjiConversion();
+
+void loadLastFile();
+void saveFile(boolean next);
+String textFileName(boolean next);
 
 // Setup called when booting
 void setup()
@@ -75,20 +81,26 @@ void setup()
   screenSprite.setCursor(0, 0);
   lineSprite.setCursor(0, 2);
 
-  if (!loadKanaDicFile(defaultKanaDicFileName))
+  if (loadKanaDicFile(defaultKanaDicFileName))
   {
+    screenSprite.printf("%s loaded\n", defaultKanaDicFileName);
+  } else {
     screenSprite.printf("%s not found in SD\n", defaultKanaDicFileName);
   }
+  screenSprite.pushSprite(0, 0);
 
-  if (!loadKanjiDicFile(defaultSKKDicFileName))
+  if (loadKanjiDicFile(defaultSKKDicFileName))
   {
+    screenSprite.printf("%s loaded\n", defaultSKKDicFileName);
+  } else {
     screenSprite.printf("%s not found in SD\n", defaultSKKDicFileName);
   }
-
   screenSprite.pushSprite(0, 0);
   lineSprite.pushSprite(0, screenHeight - inputLineHeight);
 
   Serial.printf("esp_get_minimum_free_heap_size(): %6d\n", esp_get_minimum_free_heap_size());
+
+  loadLastFile();
 }
 
 // loop called repeatedly while power on
@@ -98,11 +110,14 @@ void loop()
   M5.update();
   if (M5.BtnA.wasReleased())
   {
+    // save current text and shutdown
+    saveFile(false); 
     delay(500);
     M5.Power.deepSleep();
   }
   else if (M5.BtnB.wasReleased())
   {
+    // clear current text
     updateScreen("");
     updateInputLine("");
     romanBuffer = "";
@@ -110,6 +125,10 @@ void loop()
     lastRoman = "";
     lastKana = "";
     resetKanjiConversion();
+  } else if (M5.BtnC.wasReleased())
+  {
+    // save new file with current text
+    saveFile(true);
   }
 
   // read keyboard
@@ -298,4 +317,43 @@ void resetKanjiConversion()
 {
   kanjiVector = nullVector;
   kanjiIndex = -1;
+}
+
+// Load last file
+void loadLastFile() {
+  String fileName = textFileName(false);
+  File textFile = SD.open(fileName.c_str(), FILE_READ);
+  if (textFile && textFile.available()) {
+    String content = textFile.readString();
+    updateScreen(content);
+    textFile.close();
+  }
+}
+
+// save current file or create new
+void saveFile(boolean next) {
+  String fileName = textFileName(next);
+  File textFile = SD.open(fileName.c_str(), FILE_WRITE);
+  if (textFile) {
+    textFile.print(screenBuffer.c_str());
+    textFile.close();
+  }
+}
+
+// determine file name
+String textFileName(boolean next)
+{
+  int fileCount = 0;
+  String fileName = baseFileName + String(fileCount) + ".txt";
+  while (SD.exists(fileName))
+  {
+    fileCount++;
+    fileName = baseFileName + String(fileCount) + ".txt";
+  }
+  if (next) {
+    return fileName;
+  }
+  if (fileCount > 0)
+    fileName = baseFileName + String(fileCount - 1) + ".txt";
+  return fileName;
 }
